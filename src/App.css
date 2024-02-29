@@ -1,0 +1,156 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  height: 100%;
+  gap: 40px;
+}
+
+#addImage {
+  display: none;
+}
+
+.wrapper {
+  position: relative;
+  background: #d8d8d8;
+  width: 800px;
+  height: 500px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  /* overflow: hidden; */
+  z-index: 10;
+}
+
+.wrapper__content {
+  overflow: hidden;
+}
+
+.wrapper__btn {
+  display: flex;
+  width: 800px;
+  gap: 50px;
+}
+
+.rectangle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #ffffff00;
+  border: 2px solid red;
+}
+
+.add {
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 600;
+  color: #949494;
+  font-size: 24px;
+}
+
+.add:hover {
+  background: #c5c5c5;
+}
+
+.add__icon {
+  width: 100px;
+  height: 100px;
+}
+
+.img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  width: 800px;
+  height: 500px;
+}
+
+.img__item {
+  position: relative;
+  width: 800px;
+  height: 500px;
+}
+
+.imgs {
+  display: flex;
+  transition: all 1s;
+}
+
+.btn {
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  height: 40px;
+  color: #fff;
+  background: #827ade;
+}
+
+.face:hover {
+  scale: 1.1;
+}
+
+.arrow_left {
+  z-index: 100;
+  cursor: pointer;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  top: 50%;
+  left: -70px;
+  transform: rotate(180deg);
+}
+
+.arrow_right {
+  z-index: 100;
+  cursor: pointer;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  top: 50%;
+  right: -70px;
+}
+
+.dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -20px;
+  display: flex;
+  gap: 10px;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 800px;
+  height: 500px;
+}
+
+.dot {
+  cursor: pointer;
+  width: 10px;
+  height: 10px;
+  background: #b0b0b0;
+  border-radius: 100%;
+  transition: all 1s;
+}
+
+.dot_active {
+  background: #4f4f4f;
+}
