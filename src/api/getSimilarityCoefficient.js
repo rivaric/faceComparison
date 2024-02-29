@@ -1,5 +1,5 @@
 export const getSimilarityCoefficient = (data) => {
-  return fetch("http://26.113.24.68:8000/select_faces", {
+  return fetch("http://26.113.24.68:8000/select_face", {
     method: "post",
     credentials: "include",
     headers: {

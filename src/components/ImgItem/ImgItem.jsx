@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaceRect } from "../FaceRect/FaceRect";
 
 export const ImgItem = ({
@@ -8,12 +8,15 @@ export const ImgItem = ({
   selectedFace,
   setSelectedFace,
 }) => {
-  const [naturalSize, setNaturalSize] = useState([]);
+  const [naturalSize, setNaturalSize] = useState({});
   const [scaleRect, setScaleRect] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [containedSize, setContainedSize] = useState({});
+  const [diffSize, setDiffSize] = useState();
+  const refImg = useRef();
 
   useEffect(() => {
     if (rectangles?.length > 0) {
-      console.log(rectangles);
       rectangles.forEach((_, i) => {
         const scale = getRectangleDimensions(...rectangles[i]);
         setScaleRect((prevState) => [...prevState, scale]);
@@ -22,7 +25,17 @@ export const ImgItem = ({
   }, [rectangles]);
 
   const handleImageLoad = (event) => {
+    const { scaleWidth, scaleHeight } = getContainedSize(event.target);
     const { naturalWidth, naturalHeight } = event.target;
+
+    setDiffSize({
+      diffWidth: refImg.current.offsetWidth - scaleWidth,
+      diffHeight: refImg.current.offsetHeight - scaleHeight,
+    });
+    setContainedSize({
+      width: scaleWidth,
+      height: scaleHeight,
+    });
     setNaturalSize({
       width: naturalWidth,
       height: naturalHeight,
@@ -30,26 +43,31 @@ export const ImgItem = ({
   };
 
   const handleSelectFace = (i, imgId) => {
-    setSelectedFace((prevState) => {
-      return {
-        ...prevState,
-        [imgId]:
-          prevState[imgId] !== undefined ? [...prevState[imgId], i] : [i],
-      };
-    });
+    setSelectedId(i);
+    setSelectedFace((prevState) => ({
+      ...prevState,
+      [imgId]: i,
+    }));
   };
 
+  function getContainedSize(img) {
+    let ratio = img.naturalWidth / img.naturalHeight;
+    let width = img.height * ratio;
+    let height = img.height;
+    if (width > img.width) {
+      width = img.width;
+      height = img.width / ratio;
+    }
+    return { scaleWidth: width, scaleHeight: height };
+  }
+
   const getRectangleDimensions = (x1, y1, x2, y2) => {
-    console.log(x1, y1, x2, y2);
     const originalPoint1 = { x1, y1 };
     const originalPoint2 = { x2, y2 };
     const originalImageSize = naturalSize;
 
     // Новые размеры изображения
-    const newImageSize = {
-      width: 800,
-      height: 500,
-    };
+    const newImageSize = containedSize;
 
     // Рассчитываем соотношение между старым и новым размером
     const widthRatio = newImageSize.width / originalImageSize?.width;
@@ -91,10 +109,17 @@ export const ImgItem = ({
             {...item}
             key={i}
             onClick={() => handleSelectFace(i, imgId)}
+            isSelect={selectedId === i}
+            diffSize={diffSize}
           />
         ))}
       </div>
-      <img src={preview} className="img" onLoad={handleImageLoad} />
+      <img
+        src={preview}
+        className="img"
+        onLoad={handleImageLoad}
+        ref={refImg}
+      />
     </div>
   );
 };

@@ -1,4 +1,12 @@
-export const FaceRect = ({ x, y, width, height, onClick }) => {
+export const FaceRect = ({
+  x,
+  y,
+  width,
+  height,
+  onClick,
+  isSelect,
+  diffSize,
+}) => {
   const validX = isNaN(x) ? 0 : x;
   const validY = isNaN(y) ? 0 : y;
   const validWidth = isNaN(width) ? 0 : width;
@@ -11,11 +19,11 @@ export const FaceRect = ({ x, y, width, height, onClick }) => {
       style={{
         cursor: "pointer",
         position: "absolute",
-        left: validX,
-        top: validY,
+        left: diffSize.diffWidth / 2 + validX,
+        top: diffSize.diffHeight / 2 + validY,
         width: validWidth,
         height: validHeight,
-        border: "2px solid red",
+        border: `2px solid ${isSelect ? "rgb(0, 205, 0)" : "red"}`,
         transition: "all 0.2s",
         zIndex: 10,
       }}

@@ -1,4 +1,4 @@
-import { Arrow } from "../../assets/Arrow";
+import { Arrow } from "../../assets/icons/Arrow";
 
 export const Slider = ({ slidId, setSlidId, prewiews }) => {
   const onClicklLeftArrow = () => {
@@ -36,13 +36,14 @@ export const Slider = ({ slidId, setSlidId, prewiews }) => {
         <Arrow />
       </div>
       <div className="dots">
-        {prewiews.map((_, i) => (
-          <div
-            onClick={() => onClickDot(i)}
-            className={`dot ${slidId === i ? "dot_active" : ""}`}
-            key={i}
-          ></div>
-        ))}
+        {prewiews.length > 1 &&
+          prewiews.map((_, i) => (
+            <div
+              onClick={() => onClickDot(i)}
+              className={`dot ${slidId === i ? "dot_active" : ""}`}
+              key={i}
+            ></div>
+          ))}
       </div>
     </>
   );

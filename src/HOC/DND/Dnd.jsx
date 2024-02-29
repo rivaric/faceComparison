@@ -11,6 +11,7 @@ export const Dnd = ({ children, setDrag, onDrop }) => {
 
   const onDropHendler = (e) => {
     e.preventDefault();
+    setDrag(false);
     onDrop(e);
   };
 

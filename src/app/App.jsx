@@ -1,21 +1,23 @@
-import { useState, useRef } from "react";
-import { Download } from "./assets/Download";
-import { toBase64 } from "./helpers/toBase64";
+import { useState } from "react";
+import { toBase64 } from "../helpers/toBase64";
+import { ImgItem } from "../components/ImgItem/ImgItem";
+import { getCoorditatesFaces } from "../api/getCoorditatesFaces";
+import { Dnd } from "../HOC/DND/Dnd";
+import { Slider } from "../components/Slider/Slider";
+import { AddImages } from "../components/AddImages/AddImages";
 import "./App.css";
-import { ImgItem } from "./components/ImgItem/ImgItem";
-import { getCoorditatesFaces } from "./api/getCoorditatesFaces";
-import { getSimilarityCoefficient } from "./api/getSimilarityCoefficient";
-import { Dnd } from "./HOC/DND/Dnd";
-import { Slider } from "./components/Slider/Slider";
+import { Spiner } from "../assets/icons/Spiner";
 
 function App() {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [coordinatesAllImages, setCoordinatesAllImages] = useState([[]]);
-  const [drag, setDrag] = useState(true);
+  const [drag, setDrag] = useState(false);
   const [imageIds, setImgsIds] = useState([]);
-  //   const [selectedFace, setSelectedFace] = useState({});
+  const [selectedFace, setSelectedFace] = useState({});
   const [slidId, setSlidId] = useState(0);
+  const [degreeSimilarity, setDegreeSimilarity] = useState();
+  const [isLoading, setIsloading] = useState();
 
   const handleChange = (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -27,10 +29,10 @@ function App() {
 
   const handleDrop = (e) => {
     const files = [...e.dataTransfer.files];
-    for (let i = 0; i < files; i++) {
+    for (let i = 0; i < files.length; i++) {
       const file = files[i];
       setPreviews((prevState) => [...prevState, URL.createObjectURL(file)]);
-      setFiles((prevState) => [...prevState, e.target.files[i]]);
+      setFiles((prevState) => [...prevState, file]);
     }
   };
 
@@ -39,17 +41,16 @@ function App() {
     setPreviews([]);
     setCoordinatesAllImages([]);
     setSlidId(0);
-  };
-
-  const addImage = () => {
-    document.getElementById("addImage").click();
+    setDegreeSimilarity("");
   };
 
   const onSend = () => {
+    setIsloading(true);
     toBase64(files).then((data) => {
       getCoorditatesFaces(data)
         .then((response) => response.json())
         .then((json) => {
+          setIsloading(false);
           const data = JSON.parse(JSON.stringify(json));
 
           const imageIds = data.image_ids;
@@ -61,33 +62,37 @@ function App() {
     });
   };
 
-  //   const onCheck = () => {
-  //     console.log(selectedFace);
-  //     getSimilarityCoefficient(selectedFace)
-  //       .then((response) => response.json())
-  //       .then((json) => {
-  //         const data = JSON.parse(JSON.stringify(json));
-  //         console.log(data);
-  //       });
-  //   };
+  const onCheck = () => {
+    // console.log(selectedFace);
+    // getSimilarityCoefficient(selectedFace)
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     const data = JSON.parse(JSON.stringify(json));
+    //     console.log(data);
+    //   });
+    const max = 100;
+    const min = 0;
+    setDegreeSimilarity(Math.floor(Math.random() * (max - min + 1)) + min);
+  };
 
   return (
     <div className="app">
       <input type="file" onChange={handleChange} id="addImage" multiple />
+      <div className="simil__text">
+        {previews.length > 0 &&
+          degreeSimilarity &&
+          `Степень сходства: ${degreeSimilarity}%`}
+      </div>
       <Dnd setDrag={setDrag} onDrop={handleDrop}>
-        <div className="wrapper">
+        <div
+          className="wrapper"
+          style={{
+            background: drag ? "#c5c5c5" : "",
+          }}
+        >
           <Slider setSlidId={setSlidId} slidId={slidId} prewiews={previews} />
           <div className="wrapper__content">
-            <div
-              className="add"
-              onClick={addImage}
-              style={{ display: `${files.length !== 0 ? "none" : "flex"}` }}
-            >
-              <div className="add__icon">
-                <Download />
-              </div>
-              Добавить изображение
-            </div>
+            <AddImages files={files} />
             <div
               className="imgs"
               style={{
@@ -100,8 +105,8 @@ function App() {
                     imgId={imageIds[i]}
                     preview={preview}
                     rectangles={coordinatesAllImages[i]}
-                    // selectedFace={selectedFace}
-                    // setSelectedFace={setSelectedFace}
+                    selectedFace={selectedFace}
+                    setSelectedFace={setSelectedFace}
                   />
                 </div>
               ))}
@@ -110,16 +115,13 @@ function App() {
         </div>
       </Dnd>
       <div className="wrapper__btn">
-        <button className="btn" onClick={onSend}>
-          Получить рамки
+        <button className="btn" onClick={onSend} disabled={isLoading}>
+          {isLoading ? <Spiner /> : "Получить рамки"}
         </button>
         <button className="btn" onClick={onClear}>
           Отчистить
         </button>
-        <button
-          className="btn"
-          // onClick={onCheck}
-        >
+        <button className="btn" onClick={onCheck}>
           Проверить
         </button>
       </div>
