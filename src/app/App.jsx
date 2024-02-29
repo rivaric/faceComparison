@@ -77,7 +77,13 @@ function App() {
 
   return (
     <div className="app">
-      <input type="file" onChange={handleChange} id="addImage" multiple />
+      <input
+        type="file"
+        onChange={handleChange}
+        id="addImage"
+        multiple
+        accept="image/*"
+      />
       <div className="simil__text">
         {previews.length > 0 &&
           degreeSimilarity &&
