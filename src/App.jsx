@@ -11,52 +11,11 @@ import { Slider } from "./components/Slider/Slider";
 function App() {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const [naturalSize, setNaturalSize] = useState([]);
-  const [scaleReactangleCoordinates, setScaleReactangleCoordinates] = useState(
-    []
-  );
+  const [coordinatesAllImages, setCoordinatesAllImages] = useState([[]]);
   const [drag, setDrag] = useState(true);
-  const refImg = useRef();
-  const [imgId, setImgId] = useState([]);
-  const [selectedFace, setSelectedFace] = useState({});
-  const [slidId, setSlidId] = useState([]);
-
-  const getRectangleDimensions = (x1, y1, x2, y2) => {
-    const originalPoint1 = { x1, y1 };
-    const originalPoint2 = { x2, y2 };
-    const originalImageSize = naturalSize;
-
-    // Новые размеры изображения
-    const newImageSize = {
-      width: refImg.current.width,
-      height: refImg.current.height,
-    };
-
-    // Рассчитываем соотношение между старым и новым размером
-    const widthRatio = newImageSize.width / originalImageSize?.width;
-    const heightRatio = newImageSize.height / originalImageSize?.height;
-
-    // Рассчитываем новые координаты точки
-    const newPoint1 = {
-      x: originalPoint1.x1 * widthRatio,
-      y: originalPoint1.y1 * heightRatio,
-    };
-
-    const newPoint2 = {
-      x: originalPoint2.x2 * widthRatio,
-      y: originalPoint2.y2 * heightRatio,
-    };
-
-    const width = newPoint2.x - newPoint1.x;
-    const height = newPoint2.y - newPoint1.y;
-
-    return {
-      x: newPoint1.x,
-      y: newPoint1.y,
-      width,
-      height,
-    };
-  };
+  const [imageIds, setImgsIds] = useState([]);
+  //   const [selectedFace, setSelectedFace] = useState({});
+  const [slidId, setSlidId] = useState(0);
 
   const handleChange = (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -64,14 +23,6 @@ function App() {
       setPreviews((prevState) => [...prevState, URL.createObjectURL(file)]);
       setFiles((prevState) => [...prevState, e.target.files[i]]);
     }
-  };
-
-  const handleImageLoad = (event) => {
-    const { naturalWidth, naturalHeight } = event.target;
-    setNaturalSize({
-      width: naturalWidth,
-      height: naturalHeight,
-    });
   };
 
   const handleDrop = (e) => {
@@ -86,7 +37,8 @@ function App() {
   const onClear = () => {
     setFiles([]);
     setPreviews([]);
-    setScaleReactangleCoordinates([]);
+    setCoordinatesAllImages([]);
+    setSlidId(0);
   };
 
   const addImage = () => {
@@ -99,27 +51,25 @@ function App() {
         .then((response) => response.json())
         .then((json) => {
           const data = JSON.parse(JSON.stringify(json));
-          const coordinates = data.bboxes;
-          setImgId(data.image_ids[0]);
-          coordinates[0].forEach((_, i) => {
-            setScaleReactangleCoordinates((prevState) => [
-              ...prevState,
-              getRectangleDimensions(...coordinates[0][i]),
-            ]);
-          });
+
+          const imageIds = data.image_ids;
+          const coordinatesAllImages = data.bboxes;
+
+          setImgsIds(imageIds);
+          setCoordinatesAllImages(coordinatesAllImages);
         });
     });
   };
 
-  const onCheck = () => {
-    console.log(selectedFace);
-    getSimilarityCoefficient(selectedFace)
-      .then((response) => response.json())
-      .then((json) => {
-        const data = JSON.parse(JSON.stringify(json));
-        console.log(data);
-      });
-  };
+  //   const onCheck = () => {
+  //     console.log(selectedFace);
+  //     getSimilarityCoefficient(selectedFace)
+  //       .then((response) => response.json())
+  //       .then((json) => {
+  //         const data = JSON.parse(JSON.stringify(json));
+  //         console.log(data);
+  //       });
+  //   };
 
   return (
     <div className="app">
@@ -147,13 +97,11 @@ function App() {
               {previews.map((preview, i) => (
                 <div className="item" key={i}>
                   <ImgItem
-                    imgId={imgId[i]}
+                    imgId={imageIds[i]}
                     preview={preview}
-                    onLoad={handleImageLoad}
-                    rectangles={scaleReactangleCoordinates}
-                    refImg={refImg}
-                    selectedFace={selectedFace}
-                    setSelectedFace={setSelectedFace}
+                    rectangles={coordinatesAllImages[i]}
+                    // selectedFace={selectedFace}
+                    // setSelectedFace={setSelectedFace}
                   />
                 </div>
               ))}
@@ -168,7 +116,10 @@ function App() {
         <button className="btn" onClick={onClear}>
           Отчистить
         </button>
-        <button className="btn" onClick={onCheck}>
+        <button
+          className="btn"
+          // onClick={onCheck}
+        >
           Проверить
         </button>
       </div>
